@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  link(rel='stylesheet', href='/stylesheets/elements.css')
+  
+  div(class='container')
+    div(class='container_div_title')
+      h1()= title 
+    div(class='container_div_content')
+      if error 
+        div(class='error')= error
+      form(action="/", method="post") 
+        input(type="text", name="username", placeholder="Username", class='container_input_content')
+        input(type="password", name="password", placeholder="Password", class='container_input_content')
+        input(type="submit", value="Login", class='container_input_content')
+      form(action="/register", method="get") 
+        div(class='container_div_content')
+          input(type="submit", value="Don't have an account, Register", class='container_input_content')
+         
+        
+  
