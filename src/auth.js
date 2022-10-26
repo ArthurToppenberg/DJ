@@ -1,6 +1,6 @@
 function isAuthed(req,res,next){
     //read session id even if undefined
-    var session_id = req.session.id;
+    var session_id = req.session.user_id;
     if(session_id === undefined){
         res.redirect('/');
         return;
@@ -12,7 +12,7 @@ function add_auth(id, req){
     //make promise
     return new Promise((resolve, reject) => {
         //set cookie
-        req.session.id = id;
+        req.session.user_id = id;
         resolve();
     });
 }

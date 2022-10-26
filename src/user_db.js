@@ -16,7 +16,8 @@ function add_user(username, password, role){
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`;
         db.run(sql, [username, password, role], function(err) {
-            if (err.errno == 19) {
+            if(err){
+                console.log(err);
                 reject(new Error('Username already exists'));
             }
             resolve(this.lastID);

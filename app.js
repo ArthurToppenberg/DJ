@@ -20,10 +20,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 var session = require('express-session');
 var secret = require('crypto').randomBytes(64).toString('hex');
 app.use(session({
-    secret: secret,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true }
+  secret: secret,
+  resave: true,
+  saveUninitialized: true
 }));
 
 /*
