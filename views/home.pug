@@ -5,44 +5,78 @@ block content
     
     div(class='container home-div')
         div(class='home-div-item-select')
-            div(class='home-div-item-select-item-title') Playlists
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
-            div(class='home-div-item-select-item') NAME
+            a(href="/") 
+                div(class='home-div-item-select-item-title') Playlists
+            
+            script(src="/javascripts/tools.js") 
+            for playlist in playlists
+                div(class='home-div-item-select-item', id='playlist_' + playlist.id )= playlist.name
+                script.
+                    document.getElementById('playlist_' + #{playlist.id}).addEventListener('click', function() {
+                        //fetch('/playlist/' + #{playlist.id})
+                        fetch('/home/playlist/' + #{playlist.id},
+                            {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        )
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.success) {
+                                const playlist = data.playlist;
+                                //update name
+                                document.getElementById('playlist_' + playlist.id).innerHTML = playlist.name
+
+                                //clear tools
+                                clear_tools_bar();
+                                
+                                //set up tools
+                                add_title(playlist.name);
+                                add_tool_toggle('Public', 'green', 'red', '/some/where');
+
+                            }else{
+                                alert(data.message)
+                            }
+                        })
+                    });
+
+            div(class='home-div-item-select-item', id='create_playlist') CREATE NEW
+            
         div(class='home-div-item-content blue')
-        div(class='home-div-item-content-options green')
+        div(class='home-div-item-content-options')
+            div(class='home-div-item-select-item-title') Tools
+            div(id='tools_bar')
 
+    script.
+        const add_playlist = document.getElementById('create_playlist');
 
-
+        // Add event listener to add playlist button
+        add_playlist.addEventListener('click', () => {
+            // Create new playlist
+            const playlist_name = prompt('Enter playlist name');
+            if (playlist_name) {
+                fetch('/home/create_new_playlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playlist_name: playlist_name
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // reload page
+                        location.reload();
+                    }else{
+                        alert(data.message);
+                    }
+                })
+            }
+        });
 
 
         
