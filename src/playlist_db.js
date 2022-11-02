@@ -27,7 +27,7 @@ db.serialize(function() {
         date_modified_hour INTEGER NOT NULL,
         date_modified_minute INTEGER NOT NULL,
         date_modified_second INTEGER NOT NULL,
-        public INTEGER NOT NULL DEFAULT 0,
+        public INTEGER NOT NULL DEFAULT 1,
         description TEXT DEFAULT 'NO DESCRIPTION' NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )`;
@@ -138,8 +138,62 @@ function get_playlists(){
     )});
 }
 
+function update_playlist(id, data){
+    return new Promise((resolve, reject) => {
+        //for each element in data, update the playlist
+        const date = new Date();
+        //modified
+        const date_modified_year = date.getFullYear();
+        const date_modified_month = date.getMonth();
+        const date_modified_day = date.getDate();
+        const date_modified_hour = date.getHours();
+        const date_modified_minute = date.getMinutes();
+        const date_modified_second = date.getSeconds();
+
+        var sql = `UPDATE playlist SET
+            name = IFNULL(?, name),
+            date_modified_year = ?,
+            date_modified_month = ?,
+            date_modified_day = ?,
+            date_modified_hour = ?,
+            date_modified_minute = ?,
+            date_modified_second = ?,
+            public = IFNULL(?, public),
+            description = IFNULL(?, description)
+            WHERE id = ?`;
+
+        db.run(sql, 
+            [ 
+                data.name, 
+                date_modified_year, 
+                date_modified_month, 
+                date_modified_day, 
+                date_modified_hour, 
+                date_modified_minute, 
+                date_modified_second, 
+                data.public, 
+                data.description, 
+                id 
+            ], function(err) {
+            if(err){
+                console.log(err);
+                reject(new Error('Error updating playlist'));
+            }
+            sql = 'SELECT * FROM playlist WHERE id = ?';
+            db.get(sql, [id], function(err, row) {
+                if(err){
+                    console.log(err);
+                    reject(new Error('Error getting playlist'));
+                }
+                resolve(row);
+            });
+        }
+    )});
+}
+
 module.exports = {
     create_playlist: create_playlist,
     get_playlist_belonging_to_id: get_playlist_belonging_to_id,
-    get_playlists: get_playlists
+    get_playlists: get_playlists,
+    update_playlist: update_playlist
 };

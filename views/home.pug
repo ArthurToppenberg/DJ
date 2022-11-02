@@ -16,7 +16,7 @@ block content
                         //fetch('/playlist/' + #{playlist.id})
                         fetch('/home/playlist/' + #{playlist.id},
                             {
-                                method: 'GET',
+                                method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 }
@@ -31,10 +31,10 @@ block content
 
                                 //clear tools
                                 clear_tools_bar();
-                                
+
                                 //set up tools
-                                add_title(playlist.name);
-                                add_tool_toggle('Public', 'green', 'red', '/some/where');
+                                add_title('⮕ ' + playlist.name);
+                                add_tool_toggle(playlist.public, 'Public', 'green', '1', 'Private', 'red', '2', '/home/playlist/' + playlist.id + '/update', 'public');
 
                             }else{
                                 alert(data.message)
@@ -42,13 +42,14 @@ block content
                         })
                     });
 
-            div(class='home-div-item-select-item', id='create_playlist') CREATE NEW
+            div(class='home-div-item-select-item', id='create_playlist', style='background-color: rgb(69, 68, 68);') CREATE NEW
             
         div(class='home-div-item-content blue')
         div(class='home-div-item-content-options')
             div(class='home-div-item-select-item-title') Tools
             div(id='tools_bar')
-
+    
+    // create playlist button
     script.
         const add_playlist = document.getElementById('create_playlist');
 

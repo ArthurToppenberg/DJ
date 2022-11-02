@@ -237,7 +237,10 @@
     font-size: 15px;
     line-height: 35px;
     text-align: center;
-    transition: background-color 0.5s;
+    transition: background-color 0.2s;
+    border-color: white;
+    border-style: groove;
+    border-width: 1px;
 }
 
 .home-div-item-content-options-input-div-toggle:hover{

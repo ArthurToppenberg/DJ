@@ -52,10 +52,13 @@ playlist_db.get_playlists().then((playlists) => {
 });
 
 function give_playlist_url(playlist){
-    router.get('/playlist/' + playlist.id, function(req, res, next) {
+    /*
+        Sends playlist data to the client if permission is granted
+    */
+    router.post('/playlist/' + playlist.id, function(req, res, next) {
         //playlist is public (anyone can read it)
         if (playlist.public == 1){
-            send_playlist_data(playlist, res);
+            send_playlist_data(res, playlist);
         } 
 
         //playlist is private (only owner can read it)
@@ -71,6 +74,36 @@ function give_playlist_url(playlist){
         function send_playlist_data(res, playlist){
             res.json({success: true, playlist: playlist});
         }
+    });
+
+    /*
+        if permisions granted take input data and update playlist
+    */
+
+    router.post('/playlist/' + playlist.id + '/update', function(req, res, next) {
+        const user_id = req.session.user_id;
+        //check permision
+        if (!playlist.public && user_id != playlist.user_id){
+            res.json({success: false, message: "You are not the owner of this playlist"});
+            return;
+        }
+
+        /* 
+            create varables for all possible input data, which the user can change from the client
+            if the user does not change a value, the value will be unchanged
+            if undefined set to null
+        */
+        const name = req.body.name || null;
+        const public = req.body.public || null;
+        const description = req.body.description || null;
+
+        playlist_db.update_playlist(playlist.id, {name: name, public: public, description: description})
+        .then((playlist) => {
+            res.json({success: true, public: playlist.public});
+        })
+        .catch((err) => {
+            res.json({success: false, message: err.message});
+        });
     });
 }
 
