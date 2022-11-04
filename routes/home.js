@@ -21,7 +21,7 @@ router.get('/', function(req, res, next) {
 
 router.post('/create_new_playlist', function(req, res, next) {
     const user_id = req.session.user_id;
-    const playlist_name = req.body.playlist_name;
+    const playlist_name = 'New Playlist';
 
     if (playlist_name != undefined){
         playlist_db.create_playlist(user_id, playlist_name) // hande promise
@@ -56,24 +56,31 @@ function give_playlist_url(playlist){
         Sends playlist data to the client if permission is granted
     */
     router.post('/playlist/' + playlist.id, function(req, res, next) {
-        //playlist is public (anyone can read it)
-        if (playlist.public == 1){
-            send_playlist_data(res, playlist);
-        } 
-
-        //playlist is private (only owner can read it)
-        else {
-            const user_id = req.session.user_id;
-            if (user_id == playlist.user_id){
+        
+        //update playlist
+        playlist_db.get_playlist(playlist.id).then((playlist) => {
+            //playlist is public (anyone can read it)
+            if (playlist.public == 1){
                 send_playlist_data(res, playlist);
-            } else {
-                res.json({success: false, message: "You are not the owner of this playlist"});
-            }
-        }
+            } 
 
-        function send_playlist_data(res, playlist){
-            res.json({success: true, playlist: playlist});
-        }
+            //playlist is private (only owner can read it)
+            else {
+                const user_id = req.session.user_id;
+                if (user_id == playlist.user_id){
+                    send_playlist_data(res, playlist);
+                } else {
+                    res.json({success: false, message: "You are not the owner of this playlist"});
+                }
+            }
+
+            function send_playlist_data(res, playlist){
+                res.json({success: true, playlist: playlist});
+            }
+        })
+        .catch((err) => {
+            res.json({success: false, message: 'playlist does not exist'});
+        });
     });
 
     /*
@@ -81,6 +88,7 @@ function give_playlist_url(playlist){
     */
 
     router.post('/playlist/' + playlist.id + '/update', function(req, res, next) {
+
         const user_id = req.session.user_id;
         //check permision
         if (!playlist.public && user_id != playlist.user_id){
@@ -95,11 +103,32 @@ function give_playlist_url(playlist){
         */
         const name = req.body.name || null;
         const public = req.body.public || null;
+        //if public is not null, 1 or 2, set to 1
+        if (public != null && public != 1 && public != 2){
+            public = 1;
+        }
         const description = req.body.description || null;
 
         playlist_db.update_playlist(playlist.id, {name: name, public: public, description: description})
         .then((playlist) => {
-            res.json({success: true, public: playlist.public});
+            res.json({success: true, playlist: playlist});
+        })
+        .catch((err) => {
+            res.json({success: false, message: err.message});
+        });
+    });
+
+    router.post('/playlist/' + playlist.id + '/delete', function(req, res, next) {
+        const user_id = req.session.user_id;
+        //check permision
+        if (!playlist.public && user_id != playlist.user_id){
+            res.json({success: false, message: "You are not the owner of this playlist"});
+            return;
+        }
+
+        playlist_db.delete_playlist(playlist.id)
+        .then(() => {
+            res.json({success: true});
         })
         .catch((err) => {
             res.json({success: false, message: err.message});

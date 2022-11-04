@@ -13,6 +13,13 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "pug": "2.0.0-beta11",
-    "sqlite3": "^5.1.2"
+    "sqlite3": "^5.1.2",
+    "youtube-search": "^1.1.6"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules",
+      "public"
+    ]
   }
 }

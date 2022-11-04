@@ -179,7 +179,6 @@
     */
 
     border-color: rgb(117, 47, 111);
-    cursor: pointer;
 }
 
 .home-div-item-select-item{ /* select item */
@@ -232,19 +231,38 @@
 .home-div-item-content-options-input-div-toggle{
     width: 100%;
     height: 35px;
+    color: white;
+    font-size: 15px;
+    line-height: 35px;
+    text-align: center;
+    border-color: white;
+    border-style: groove;
+    border-width: 1px;
+    transition: border-radius 0.5s;
+}
+
+.home-div-item-content-options-input-div-toggle:hover{
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.home-div-item-content-options-input-div-delete{
+    width: 100%;
+    height: 35px;
     background-color: black;
     color: white;
     font-size: 15px;
     line-height: 35px;
     text-align: center;
-    transition: background-color 0.2s;
     border-color: white;
     border-style: groove;
     border-width: 1px;
+    transition: border-radius 0.5s;
 }
 
-.home-div-item-content-options-input-div-toggle:hover{
-    background-color: rgb(23, 22, 22);
+.home-div-item-content-options-input-div-delete:hover{
+    cursor: pointer;
+    border-radius: 10px;
 }
 
 /* 

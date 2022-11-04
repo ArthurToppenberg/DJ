@@ -138,6 +138,18 @@ function get_playlists(){
     )});
 }
 
+function get_playlist(id){
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM playlist WHERE id = ?`;
+        db.get(sql, [id], function(err, row) {
+            if (err) {
+                reject(err);
+            }
+            resolve(row);
+        }
+    )});
+}
+
 function update_playlist(id, data){
     return new Promise((resolve, reject) => {
         //for each element in data, update the playlist
@@ -191,9 +203,23 @@ function update_playlist(id, data){
     )});
 }
 
+function delete_playlist(id){
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM playlist WHERE id = ?`;
+        db.run(sql, [id], function(err) {
+            if (err) {
+                reject(err);
+            }
+            resolve();
+        }
+    )});
+}
+
 module.exports = {
     create_playlist: create_playlist,
     get_playlist_belonging_to_id: get_playlist_belonging_to_id,
     get_playlists: get_playlists,
-    update_playlist: update_playlist
+    update_playlist: update_playlist,
+    get_playlist: get_playlist,
+    delete_playlist: delete_playlist
 };

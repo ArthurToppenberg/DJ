@@ -53,4 +53,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+//require('./src/youtube_song_search');
+
+console.log('Started')
 module.exports = app;

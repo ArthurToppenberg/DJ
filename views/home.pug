@@ -7,7 +7,6 @@ block content
         div(class='home-div-item-select')
             a(href="/") 
                 div(class='home-div-item-select-item-title') Playlists
-            
             script(src="/javascripts/tools.js") 
             for playlist in playlists
                 div(class='home-div-item-select-item', id='playlist_' + playlist.id )= playlist.name
@@ -27,14 +26,16 @@ block content
                             if(data.success) {
                                 const playlist = data.playlist;
                                 //update name
-                                document.getElementById('playlist_' + playlist.id).innerHTML = playlist.name
+                                const playlist_div = document.getElementById('playlist_' + playlist.id)
+                                playlist_div.innerHTML = playlist.name
 
                                 //clear tools
                                 clear_tools_bar();
 
                                 //set up tools
-                                add_title('⮕ ' + playlist.name);
+                                add_title('⮕ ' + playlist.name, '/home/playlist/' + playlist.id + '/update', playlist_div);
                                 add_tool_toggle(playlist.public, 'Public', 'green', '1', 'Private', 'red', '2', '/home/playlist/' + playlist.id + '/update', 'public');
+                                add_delete_playlist('/home/playlist/' + playlist.id + '/delete', playlist_div);
 
                             }else{
                                 alert(data.message)
@@ -44,7 +45,14 @@ block content
 
             div(class='home-div-item-select-item', id='create_playlist', style='background-color: rgb(69, 68, 68);') CREATE NEW
             
-        div(class='home-div-item-content blue')
+        div(class='home-div-item-content')
+            link(rel='stylesheet', href='/stylesheets/content.css')
+            div(class='nav-bar-div')
+                div(class='nav-bar-div-item')= 'Home'
+                div(class='nav-bar-div-item')= 'Search Songs'
+                div(class='nav-bar-div-item')= 'Search Playlists'
+                div(class='nav-bar-div-item')= 'Followed Playlists'
+
         div(class='home-div-item-content-options')
             div(class='home-div-item-select-item-title') Tools
             div(id='tools_bar')
@@ -55,28 +63,26 @@ block content
 
         // Add event listener to add playlist button
         add_playlist.addEventListener('click', () => {
-            // Create new playlist
-            const playlist_name = prompt('Enter playlist name');
-            if (playlist_name) {
-                fetch('/home/create_new_playlist', {
+            //fetch home/create_playlist
+            fetch('/home/create_new_playlist',
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        playlist_name: playlist_name
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // reload page
-                        location.reload();
-                    }else{
-                        alert(data.message);
                     }
-                })
-            }
+                }
+            )
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+
+                    //reload page
+                    location.reload();
+                    
+                }else{
+                    alert(data.message)
+                }
+            })
         });
 
 
