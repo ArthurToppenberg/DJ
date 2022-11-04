@@ -48,10 +48,13 @@ block content
         div(class='home-div-item-content')
             link(rel='stylesheet', href='/stylesheets/content.css')
             div(class='nav-bar-div')
-                div(class='nav-bar-div-item')= 'Home'
-                div(class='nav-bar-div-item')= 'Search Songs'
-                div(class='nav-bar-div-item')= 'Search Playlists'
-                div(class='nav-bar-div-item')= 'Followed Playlists'
+                div(class='nav-bar-div-item', id='view_playlist')= 'View Playlist'
+                div(class='nav-bar-div-item', id='search_songs' )= 'Search Songs'
+                div(class='nav-bar-div-item', id='search_playlist')= 'Search Playlists'
+                div(class='nav-bar-div-item', id='followed_playlists')= 'Followed Playlists'
+            
+            div(id='middle_content')
+            script(src="/javascripts/middle_content.js") 
 
         div(class='home-div-item-content-options')
             div(class='home-div-item-select-item-title') Tools

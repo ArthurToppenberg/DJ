@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var playlist_db = require('../src/playlist_db');
+var song_search = require('../src/song_search');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -135,5 +136,21 @@ function give_playlist_url(playlist){
         });
     });
 }
+
+router.post('/songs/search', function(req, res, next) {
+    const search_query = req.body.search_query;
+
+    if (search_query != undefined){
+        song_search.search(search_query)
+        .then((songs) => {
+            res.json({success: true, results: songs.results}); // send to client
+        })
+        .catch((err) => {
+            res.json({success: false, message: err.message}); // error in song_search.js
+        });
+    }else{
+        res.json({success: false, message: "Search query not defined"});
+    }
+});
 
 module.exports = router;

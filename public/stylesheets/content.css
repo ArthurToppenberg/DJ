@@ -49,3 +49,148 @@
     color: #000;
     background-color: #fff;
 }
+
+.search-bar{
+    /* 
+        Search bar
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: rgb(72, 71, 71);
+    color: #fff;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 50px;
+    transition: color 0.5s;
+    display: inline-flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-results-for-div{
+    /* 
+        Search query div ( Showing results for: xxxxxx)
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background-color: rgb(72, 71, 71);
+    color: #fff;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 30px;
+    transition: color 0.5s;
+    text-align: center;
+}
+
+.search-result-div{
+    /* 
+        Search result div (This is the box that is generated for each song)
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background-color: rgb(109, 107, 107);
+    color: #fff;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 30px;
+    transition: background-color 0.5s;
+    text-align: center;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.search-result-div:hover{
+    /* 
+        Search result div hover
+    */
+    background-color: rgb(72, 71, 71);
+}
+
+.search-result-title-and-description-div{
+    /* 
+        Search result title and description div
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    transition: color 0.5s;
+    display: flex-box;
+    flex-direction: column;
+    justify-content: left;
+    align-items: left;
+    overflow: hidden;
+}
+
+.search-result-title{
+    /* 
+        Search result title
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    color: rgb(0, 0, 0);
+    transition: color 0.5s;
+    text-align: left;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 15px;
+    overflow: hidden;
+    padding-left: 10px;
+}
+
+.search-result-description{
+    /* 
+        Search result description
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    color: #fff;
+    transition: color 0.5s;
+    text-align: left;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 10px;
+    overflow: hidden;
+    padding-left: 10px;
+}
+
+.search-result-thumbnail{
+    /* 
+        Search result thumbnail
+    */
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 90px;
+    color: #fff;
+    transition: color 0.5s;
+    text-align: left;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 10px;
+    overflow: hidden;
+    padding-left: 10px;
+}
