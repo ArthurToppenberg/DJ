@@ -7,7 +7,7 @@ var opts = {
 };
 
 function search(query){
-    const formatted_query = query + 'Official Audio';
+    const formatted_query = query + '';
     return new Promise((resolve, reject) => {
         youtube(formatted_query, opts, function(err, results) {
             if(err) reject({success: false, message: 'error searching for song'});

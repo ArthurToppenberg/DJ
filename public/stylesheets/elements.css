@@ -265,6 +265,26 @@
     border-radius: 10px;
 }
 
+.home-div-item-content-options-input-div-dropbox{
+    width: calc(100% - 10px);
+    height: 300px;
+    background-color: black;
+    color: white;
+    font-size: 15px;
+    line-height: 35px;
+    text-align: center;
+    border-color: white;
+    border-style: dashed;
+    border-width: 2px;
+    transition: border-width 0.5s, font-size 0.5s;
+}
+
+.home-div-item-content-options-input-div-dropbox:hover{
+    cursor: pointer;
+    border-width: 5px;
+    font-size: 20px;
+}
+
 /* 
     Debugging
     -------

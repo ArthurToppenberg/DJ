@@ -123,3 +123,10 @@ function add_delete_playlist(post_url, playlist_div){
         xhr.send(data);
     });
 }
+
+function add_song_dropbox(){
+    var drop_box = document.createElement("div");
+    drop_box.className = "home-div-item-content-options-input-div-dropbox";
+    drop_box.innerHTML = 'Drop a song here';
+    document.getElementById("tools_bar").appendChild(drop_box);
+}

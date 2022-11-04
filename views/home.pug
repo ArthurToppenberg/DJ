@@ -35,8 +35,8 @@ block content
                                 //set up tools
                                 add_title('⮕ ' + playlist.name, '/home/playlist/' + playlist.id + '/update', playlist_div);
                                 add_tool_toggle(playlist.public, 'Public', 'green', '1', 'Private', 'red', '2', '/home/playlist/' + playlist.id + '/update', 'public');
+                                add_song_dropbox();
                                 add_delete_playlist('/home/playlist/' + playlist.id + '/delete', playlist_div);
-
                             }else{
                                 alert(data.message)
                             }
@@ -59,6 +59,7 @@ block content
         div(class='home-div-item-content-options')
             div(class='home-div-item-select-item-title') Tools
             div(id='tools_bar')
+                div(class='home-div-item-content-options-title') No Playlist Selected
     
     // create playlist button
     script.

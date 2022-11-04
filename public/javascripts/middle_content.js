@@ -94,6 +94,7 @@ function query_search_songs(search_bar){
     function add_search_query_result(result){
         const result_div = document.createElement("div");
         result_div.className = "search-result-div";
+        result_div.draggable = true;
 
         const thumbnail = document.createElement("img");
         thumbnail.className = "search-result-thumbnail";
