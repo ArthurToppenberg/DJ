@@ -19,8 +19,9 @@ function search(query){
         format results
         song
             thumbnail
-            title (url)
+            title
             description
+            id
     */
 
     function format_results(results){
@@ -28,7 +29,8 @@ function search(query){
             return {
                 thumbnail: result.thumbnails.default.url,
                 title: result.title,
-                description: result.description
+                description: result.description,
+                id: result.id
             }
         });
     }

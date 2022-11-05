@@ -119,6 +119,14 @@ function query_search_songs(search_bar){
             title_and_description_div.appendChild(description);
 
         search_results_div.appendChild(result_div);
+
+        //add event listener for drag and drop
+        result_div.addEventListener("dragstart", function(event){
+            event.dataTransfer.setData("video_id", result.id);
+            event.dataTransfer.setData("video_title", result.title);
+            event.dataTransfer.setData("video_thumbnail", result.thumbnail);
+            event.dataTransfer.setData("video_description", result.description);
+        });
     }
 
     function clear(){

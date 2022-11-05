@@ -35,7 +35,7 @@ block content
                                 //set up tools
                                 add_title('⮕ ' + playlist.name, '/home/playlist/' + playlist.id + '/update', playlist_div);
                                 add_tool_toggle(playlist.public, 'Public', 'green', '1', 'Private', 'red', '2', '/home/playlist/' + playlist.id + '/update', 'public');
-                                add_song_dropbox();
+                                add_song_dropbox('/home/playlist/' + playlist.id + '/add_song');
                                 add_delete_playlist('/home/playlist/' + playlist.id + '/delete', playlist_div);
                             }else{
                                 alert(data.message)

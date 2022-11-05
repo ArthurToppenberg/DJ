@@ -124,9 +124,37 @@ function add_delete_playlist(post_url, playlist_div){
     });
 }
 
-function add_song_dropbox(){
+function add_song_dropbox(post_url){
     var drop_box = document.createElement("div");
     drop_box.className = "home-div-item-content-options-input-div-dropbox";
     drop_box.innerHTML = 'Drop a song here';
     document.getElementById("tools_bar").appendChild(drop_box);
+
+    //add event listener for when a song is dropped
+    drop_box.addEventListener("drop", function(e){
+        var song_id = e.dataTransfer.getData("video_id");
+        var song_title = e.dataTransfer.getData("video_title");
+        var song_thumbnail = e.dataTransfer.getData("video_thumbnail");
+        var song_description = e.dataTransfer.getData("video_description");
+
+        const data = {id: song_id, title: song_title, thumbnail: song_thumbnail, description: song_description};
+
+        //post request
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", post_url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            var response = JSON.parse(xhr.responseText);
+            if(response.success){
+                //do something
+            }else{
+                alert(response.message);
+            }
+        }
+        xhr.send(JSON.stringify(data));
+    });
+
+    drop_box.addEventListener("dragover", function(e){
+        e.preventDefault();
+    });
 }

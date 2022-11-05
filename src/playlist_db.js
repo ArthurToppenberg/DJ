@@ -1,3 +1,4 @@
+var songs_db = require('./songs_db');
 const db = require('./db').connect();
 
 //create playlist table
@@ -29,7 +30,9 @@ db.serialize(function() {
         date_modified_second INTEGER NOT NULL,
         public INTEGER NOT NULL DEFAULT 1,
         description TEXT DEFAULT 'NO DESCRIPTION' NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        songs_id TEXT[] DEFAULT '{}' NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (songs_id) REFERENCES songs(id)
     )`;
 
     //drop table
@@ -152,6 +155,7 @@ function get_playlist(id){
 
 function update_playlist(id, data){
     return new Promise((resolve, reject) => {
+
         //for each element in data, update the playlist
         const date = new Date();
         //modified
@@ -171,7 +175,8 @@ function update_playlist(id, data){
             date_modified_minute = ?,
             date_modified_second = ?,
             public = IFNULL(?, public),
-            description = IFNULL(?, description)
+            description = IFNULL(?, description),
+            IFNULL(array_append(songs_id, ?), songs_id)
             WHERE id = ?`;
 
         db.run(sql, 
@@ -185,6 +190,7 @@ function update_playlist(id, data){
                 date_modified_second, 
                 data.public, 
                 data.description, 
+                data.song_id,
                 id 
             ], function(err) {
             if(err){
@@ -215,11 +221,39 @@ function delete_playlist(id){
     )});
 }
 
+function link_song(playlist_id, youtube_id, youtube_title, youtube_description, youtube_thumbnail){
+    /*
+        link song to playlist
+    */
+    return new Promise((resolve, reject) => {
+        songs_db.get_song_id(youtube_id, youtube_title, youtube_description, youtube_thumbnail).then((song_id) => {
+            update_playlist(playlist_id, {song_id: song_id}).then((playlist) => {
+                resolve(playlist);
+            });
+        }).catch((err) => {
+            reject(err);
+        }
+    )});
+}
+
+function show_all(){
+    const sql = `SELECT * FROM playlist`;
+    db.all(sql, function(err, rows) {
+        if (err) {
+            console.log(err);
+        }
+        console.log(rows);
+    }
+)};
+
+//show_all();
+
 module.exports = {
     create_playlist: create_playlist,
     get_playlist_belonging_to_id: get_playlist_belonging_to_id,
     get_playlists: get_playlists,
     update_playlist: update_playlist,
     get_playlist: get_playlist,
-    delete_playlist: delete_playlist
+    delete_playlist: delete_playlist,
+    link_song: link_song,
 };

@@ -135,6 +135,35 @@ function give_playlist_url(playlist){
             res.json({success: false, message: err.message});
         });
     });
+
+    router.post('/playlist/' + playlist.id + '/add_song', function(req, res, next) {
+        const user_id = req.session.user_id;
+        //check permision
+        if (!playlist.public && user_id != playlist.user_id){
+            res.json({success: false, message: "You are not the owner of this playlist"});
+            return;
+        }
+
+        const id = req.body.id;
+        const title = req.body.title;
+        const description = req.body.description;
+        const thumbnail = req.body.thumbnail;
+
+        console.log(id, title, description, thumbnail);
+
+        if (id == undefined || title == undefined || description == undefined || thumbnail == undefined){
+            res.json({success: false, message: "Missing song data"});
+            return;
+        }
+
+        playlist_db.link_song(playlist.id, id, title, description, thumbnail)
+        .then((playlist) => {
+            res.json({success: true});
+        })
+        .catch((err) => {
+            res.json({success: false, message: err.error});
+        });
+    });
 }
 
 router.post('/songs/search', function(req, res, next) {
