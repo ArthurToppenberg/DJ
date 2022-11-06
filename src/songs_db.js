@@ -1,4 +1,5 @@
 const db = require('./db').connect();
+var song_search = require('../src/song_search');
 
 //create users table
 db.serialize(function() {
@@ -16,36 +17,44 @@ db.serialize(function() {
     db.run(sql);
 });
 
-function get_song_id(youtube_id, youtube_title, youtube_description, youtube_thumbnail){
+function add_song(youtube_id){
     /*
         function will return song id if song is in database
         if song is not in database, add song to database and return song id
     */
 
     return new Promise((resolve, reject) => {
-        //check if song is in database
-        db.get(`SELECT id FROM songs WHERE youtube_id = ?`, [youtube_id], (err, row) => {
-            if (err){
-                console.log(err);
-                reject({succsess: false, error: 'Error getting song id'});
-                return;
-            }
+        //get information on song
+        song_search.get_data(youtube_id).then((song_data) => {
+    
+            song_data = song_data.results[0];
 
-            if (row != undefined){
-                resolve(row);
-                return;
-            }
-
-            console.log('song does not exist adding now');
-            //add song to database
-            db.run(`INSERT INTO songs (youtube_id, youtube_title, youtube_thumbnail, youtube_description) VALUES (?, ?, ?, ?)`, [youtube_id, youtube_title, youtube_thumbnail, youtube_description], function(err){
+            //check if song is in database
+            db.get(`SELECT id FROM songs WHERE youtube_id = ?`, [youtube_id], (err, row) => {
                 if (err){
-                    reject({succsess: false, error: 'Error addind song to songs database'});
+                    console.log(err);
+                    reject({succsess: false, error: 'Error getting song id'});
                     return;
                 }
 
-                resolve(this.lastID);
+                if (row != undefined){
+                    resolve(row.id);
+                    return;
+                }
+
+                console.log('Song did not exist');
+                //add song to database
+                db.run(`INSERT INTO songs (youtube_id, youtube_title, youtube_thumbnail, youtube_description) VALUES (?, ?, ?, ?)`, [song_data.id, song_data.title, song_data.thumbnail, song_data.description], function(err){
+                    if (err){
+                        reject({succsess: false, error: 'Error addind song to songs database'});
+                        return;
+                    }
+
+                    resolve(this.lastID);
+                });
             });
+        }).catch((err) => {
+            reject(err);
         });
     });
 }
@@ -63,8 +72,8 @@ function show_all(){
     });
 }
 
-show_all();
+//show_all();
 
 module.exports = {
-    get_song_id: get_song_id
+    add_song: add_song
 };

@@ -133,11 +133,8 @@ function add_song_dropbox(post_url){
     //add event listener for when a song is dropped
     drop_box.addEventListener("drop", function(e){
         var song_id = e.dataTransfer.getData("video_id");
-        var song_title = e.dataTransfer.getData("video_title");
-        var song_thumbnail = e.dataTransfer.getData("video_thumbnail");
-        var song_description = e.dataTransfer.getData("video_description");
 
-        const data = {id: song_id, title: song_title, thumbnail: song_thumbnail, description: song_description};
+        const data = {id: song_id};
 
         //post request
         var xhr = new XMLHttpRequest();
@@ -147,6 +144,7 @@ function add_song_dropbox(post_url){
             var response = JSON.parse(xhr.responseText);
             if(response.success){
                 //do something
+
             }else{
                 alert(response.message);
             }

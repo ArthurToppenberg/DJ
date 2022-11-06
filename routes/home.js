@@ -145,23 +145,19 @@ function give_playlist_url(playlist){
         }
 
         const id = req.body.id;
-        const title = req.body.title;
-        const description = req.body.description;
-        const thumbnail = req.body.thumbnail;
 
-        console.log(id, title, description, thumbnail);
-
-        if (id == undefined || title == undefined || description == undefined || thumbnail == undefined){
+        if (id == undefined){
             res.json({success: false, message: "Missing song data"});
             return;
         }
 
-        playlist_db.link_song(playlist.id, id, title, description, thumbnail)
-        .then((playlist) => {
+        playlist_db.add_song(id, playlist.id).then((song) => {
+            console.log('yess song was added to playlist');
+            console.log(song);
             res.json({success: true});
         })
         .catch((err) => {
-            res.json({success: false, message: err.error});
+            res.json({success: false, message: err.message});
         });
     });
 }
