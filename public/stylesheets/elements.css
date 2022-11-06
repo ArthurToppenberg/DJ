@@ -189,7 +189,7 @@
     line-height: 50px;
     padding-left: 10px;
     overflow-x: hidden;
-    color: white;
+    color: rgba(255, 255, 255, 0.498);
     transition: background-color 0.2s;
 }
 

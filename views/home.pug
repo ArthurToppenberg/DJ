@@ -12,7 +12,6 @@ block content
                 div(class='home-div-item-select-item', id='playlist_' + playlist.id )= playlist.name
                 script.
                     document.getElementById('playlist_' + #{playlist.id}).addEventListener('click', function() {
-                        //fetch('/playlist/' + #{playlist.id})
                         fetch('/home/playlist/' + #{playlist.id},
                             {
                                 method: 'POST',
@@ -24,6 +23,8 @@ block content
                         .then(response => response.json())
                         .then(data => {
                             if(data.success) {
+                                playlist_select() 
+
                                 const playlist = data.playlist;
                                 //update name
                                 const playlist_div = document.getElementById('playlist_' + playlist.id)
@@ -41,8 +42,22 @@ block content
                                 alert(data.message)
                             }
                         })
-                    });
+                        //unselect selected playlist
+                        function playlist_unselect_all(){
+                            const playlist_divs = document.getElementsByClassName('home-div-item-select-item');
+                            for(let i = 0; i < playlist_divs.length; i++){
+                                playlist_divs[i].style.color = '';
+                                playlist_divs[i].class = 'home-div-item-select-item';
+                            }
+                        }
 
+                        function playlist_select(){
+                            playlist_unselect_all();
+                            const playlist_element = document.getElementById('playlist_' + #{playlist.id});
+                            playlist_element.style.color = 'rgba(255, 255, 255)';
+                        }
+                    });
+                    
             div(class='home-div-item-select-item', id='create_playlist', style='background-color: rgb(69, 68, 68);') CREATE NEW
             
         div(class='home-div-item-content')

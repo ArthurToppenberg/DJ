@@ -19,6 +19,13 @@ middle_content.style.height = window.innerHeight - 75 + "px";
 view_playlist.addEventListener("click", function(){
     clear();
     select(view_playlist);
+
+    //create navigation bar
+    const navigation_bar = document.createElement("div");
+    navigation_bar.className = "nav-bar-div";
+    navigation_bar.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+    middle_content.appendChild(navigation_bar);
+
 });
 
 /*
