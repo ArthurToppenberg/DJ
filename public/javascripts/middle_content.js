@@ -26,6 +26,140 @@ view_playlist.addEventListener("click", function(){
     navigation_bar.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
     middle_content.appendChild(navigation_bar);
 
+    const songs_container = document.createElement("div");
+    middle_content.appendChild(songs_container);
+
+    get_playlist();
+
+    function get_playlist(){
+        //get selected playlist
+        const playlists = document.getElementsByClassName("playlist");
+        //from playlists find the selected playlist (the selected on has white text color with no opacity)
+        for (let i = 0; i < playlists.length; i++){
+            if(playlists[i].style.color == "rgb(255, 255, 255)"){
+                const playlist_id = playlists[i].id;
+                fetch_playlist(playlist_id);
+                return
+            }
+        }
+
+        //show message no playlist selected
+        const message = document.createElement("h1");
+        message.innerHTML = "No Playlist Selected";
+        message.style.color = "white";
+        message.style.textAlign = "center";
+        message.style.marginTop = "50px";
+        middle_content.appendChild(message);
+        
+        function fetch_playlist(id){
+            id_num = id.split("_")[1];
+            //fetch playlist
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/home/playlist/" + id_num, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send();
+            xhr.onload = function(){
+                const response = JSON.parse(xhr.responseText);
+                if(response.success){
+                    const playlist = response.playlist;
+                    
+                    //add playlist name to navigation bar
+                    const playlist_title = document.createElement("h1");
+                    playlist_title.innerHTML = playlist.name;
+                    playlist_title.style.color = "white";
+                    navigation_bar.appendChild(playlist_title);
+
+                    const playlist_songs = JSON.parse(playlist.songs_ids);
+                    playlist_songs.forEach((song) => {
+                        const song_div = document.createElement("div");
+                        song_div.className = "song-div";
+                        song_div.id = "song_" + song.id;
+                        songs_container.appendChild(song_div);
+
+                        get_song(song, song_div);
+                    });
+
+                    function get_song(id, playlist_div_id){
+                        //fetch song
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "/home/song/" + id, true);
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        xhr.send();
+                        xhr.onload = function(){
+                            const response = JSON.parse(xhr.responseText);
+                            if(response.success){
+                                const song = response.song;
+
+                                //add thumnail
+                                const thumbnail = document.createElement("img");
+                                thumbnail.src = song.youtube_thumbnail;
+                                thumbnail.className = "song-div-thumbnail";
+                                playlist_div_id.appendChild(thumbnail);
+
+                                //add title
+                                const song_title = document.createElement("p");
+                                song_title.innerHTML = song.youtube_title;
+                                song_title.className = 'song-div-title'
+                                playlist_div_id.appendChild(song_title);
+
+                                //add loading gif
+                                const loading_gif = document.createElement("img");
+                                loading_gif.src = "/images/loading.gif";
+                                loading_gif.className = "song-div-loading-gif";
+                                playlist_div_id.appendChild(loading_gif);
+
+                                    //on hover show message
+                                    loading_gif.addEventListener("mouseover", function(event){
+                                        const message = document.createElement("div");
+                                        message.className = "message";
+                                        message.innerHTML = "Your song is being processed";
+                                        playlist_div_id.appendChild(message);
+                                        //move message div to position of loading gif
+                                        message.style.left = loading_gif.offsetLeft - message.offsetWidth + "px";
+                                        message.style.top = loading_gif.offsetTop + "px";
+
+                                        //remove message after x milliseconds
+                                        setTimeout(function(){
+                                            message.remove();
+                                        }
+                                        , 900);
+                                    });
+
+                                //add delete button
+                                const delete_button = document.createElement("button");
+                                delete_button.innerHTML = "remove";
+                                delete_button.className = "song-div-delete-button";
+                                playlist_div_id.appendChild(delete_button);
+
+                                    delete_button.addEventListener("click", function(){
+                                        //remove song from playlist
+                                        const xhr = new XMLHttpRequest();
+                                        xhr.open("POST", "/home/playlist/" + playlist.id + "/remove_song", true);
+                                        xhr.setRequestHeader("Content-Type", "application/json");
+                                        xhr.send(JSON.stringify({id: song.id}));
+                                        xhr.onload = function(){
+                                            const response = JSON.parse(xhr.responseText);
+                                            if(response.success){
+                                                //remove song from playlist
+                                                playlist_div_id.remove();
+                                            }else{
+                                                alert("Error: " + response.message);
+                                            }
+                                        }
+                                    });
+                            }
+                            else {
+                                console.log(response.message);
+                            }
+                        }
+                    }
+                }else{
+                    alert(response.message);
+                }
+            }
+        }
+    }
+
 });
 
 /*

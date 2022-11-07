@@ -166,77 +166,46 @@ function update_playlist(id, data){
         const date_modified_minute = date.getMinutes();
         const date_modified_second = date.getSeconds();
 
-        let song_id = data.song_id;
-        console.log(song_id);
+        var sql = `UPDATE playlist SET
+            name = IFNULL(?, name),
+            date_modified_year = ?,
+            date_modified_month = ?,
+            date_modified_day = ?,
+            date_modified_hour = ?,
+            date_modified_minute = ?,
+            date_modified_second = ?,
+            public = IFNULL(?, public),
+            description = IFNULL(?, description),
+            songs_ids = IFNULL(?, songs_ids)
+            WHERE id = ?`;
 
-        if(song_id != undefined){ 
-            //get existing songs_ids
-            get_playlist(id).then((playlist) => {
-
-                const playlist_songs_ids = JSON.parse(playlist.songs_ids);
-                const new_song_id = song_id;
-
-                console.log(playlist_songs_ids, new_song_id);
-
-                const new_songs_ids = [...playlist_songs_ids, new_song_id];
-                song_id = JSON.stringify(new_songs_ids);
-                
-                console.log(song_id);
-
-                update();
-                
-            }).catch((err) => {
+        db.run(sql, 
+            [ 
+                data.name, 
+                date_modified_year, 
+                date_modified_month, 
+                date_modified_day, 
+                date_modified_hour, 
+                date_modified_minute, 
+                date_modified_second, 
+                data.public, 
+                data.description, 
+                data.songs_ids,
+                id 
+            ], function(err) {
+            if(err){
                 console.log(err);
-                reject({succsess: false, message: 'Error getting playlist'});
-            });
-        }else{
-            song_id = null;
-            update();
-        }
-
-        function update(){
-            var sql = `UPDATE playlist SET
-                name = IFNULL(?, name),
-                date_modified_year = ?,
-                date_modified_month = ?,
-                date_modified_day = ?,
-                date_modified_hour = ?,
-                date_modified_minute = ?,
-                date_modified_second = ?,
-                public = IFNULL(?, public),
-                description = IFNULL(?, description),
-                songs_ids = IFNULL(?, songs_ids)
-                WHERE id = ?`;
-
-            db.run(sql, 
-                [ 
-                    data.name, 
-                    date_modified_year, 
-                    date_modified_month, 
-                    date_modified_day, 
-                    date_modified_hour, 
-                    date_modified_minute, 
-                    date_modified_second, 
-                    data.public, 
-                    data.description, 
-                    song_id,
-                    id 
-                ], function(err) {
+                reject(new Error('Error updating playlist'));
+            }
+            sql = 'SELECT * FROM playlist WHERE id = ?';
+            db.get(sql, [id], function(err, row) {
                 if(err){
                     console.log(err);
-                    reject(new Error('Error updating playlist'));
+                    reject(new Error('Error getting playlist'));
                 }
-                sql = 'SELECT * FROM playlist WHERE id = ?';
-                db.get(sql, [id], function(err, row) {
-                    if(err){
-                        console.log(err);
-                        reject(new Error('Error getting playlist'));
-                    }
-                    resolve(row);
-                });
+                resolve(row);
             });
-        }
-        
+        });    
     });
 }
 
@@ -258,15 +227,40 @@ function add_song(youtube_song_id, playlist_id){
         then add song to playlist with song_id from songs_db
     */
     return new Promise((resolve, reject) => {
-
-        //get song_id from songs_db
         songs_db.add_song(youtube_song_id).then((song_id) => {
-            //update playlist with song_id
-            update_playlist(playlist_id, {song_id: song_id}).then((playlist) => {
-                resolve(playlist);
-            }).catch((err) => {
+            //get playlist songs
+            get_playlist(playlist_id).then((playlist) => {
+                //add song to playlist
+                var songs_ids = JSON.parse(playlist.songs_ids);
+                songs_ids.push(song_id);
+                songs_ids = JSON.stringify(songs_ids);
+                update_playlist(playlist_id, {songs_ids: songs_ids}).then((playlist) => {
+                    resolve(song_id);
+                }
+            )}).catch((err) => {
                 reject(err);
             });
+        });
+    });
+}
+
+function remove_song(song_id, playlist_id){
+    return new Promise((resolve, reject) => {
+        //get playlist songs
+        get_playlist(playlist_id).then((playlist) => {
+            //remove song from playlist
+            var songs_ids = JSON.parse(playlist.songs_ids);
+            var index = songs_ids.indexOf(song_id);
+            if(index > -1){
+                songs_ids.splice(index, 1);
+            }
+            songs_ids = JSON.stringify(songs_ids);
+            update_playlist(playlist_id, {songs_ids: songs_ids}).then((playlist) => {
+                resolve(song_id);
+            }
+
+        )}).catch((err) => {
+            reject(err);
         });
     });
 }
@@ -295,5 +289,6 @@ module.exports = {
     update_playlist: update_playlist,
     get_playlist: get_playlist,
     delete_playlist: delete_playlist,
-    add_song: add_song
+    add_song: add_song,
+    remove_song: remove_song
 };

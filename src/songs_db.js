@@ -42,14 +42,12 @@ function add_song(youtube_id){
                     return;
                 }
 
-                console.log('Song did not exist');
                 //add song to database
                 db.run(`INSERT INTO songs (youtube_id, youtube_title, youtube_thumbnail, youtube_description) VALUES (?, ?, ?, ?)`, [song_data.id, song_data.title, song_data.thumbnail, song_data.description], function(err){
                     if (err){
                         reject({succsess: false, error: 'Error addind song to songs database'});
                         return;
                     }
-
                     resolve(this.lastID);
                 });
             });
@@ -59,21 +57,37 @@ function add_song(youtube_id){
     });
 }
 
-function show_all(){
-    const sql = `SELECT * FROM songs`;
-    db.all(sql, [], (err, rows) => {
-        if (err){
-            throw err;
-        }
-        
-        rows.forEach((row) => {
-            console.log(row);
+function get_songs(){
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT * FROM songs`, (err, rows) => {
+            if (err){
+                reject({succsess: false, error: 'Error getting all songs'});
+                return;
+            }
+
+            resolve(rows);
         });
     });
 }
 
+function get_song(id){
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT * FROM songs WHERE id = ?`, [id], (err, row) => {
+            if (err){
+                reject({succsess: false, error: 'Error getting song'});
+                return;
+            }
+
+            resolve(row);
+        });
+    });
+};
+
+
 //show_all();
 
 module.exports = {
-    add_song: add_song
+    add_song: add_song,
+    get_songs: get_songs,
+    get_song: get_song
 };

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var playlist_db = require('../src/playlist_db');
 var song_search = require('../src/song_search');
+var songs_db = require('../src/songs_db');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -151,14 +152,61 @@ function give_playlist_url(playlist){
             return;
         }
 
-        playlist_db.add_song(id, playlist.id).then((song) => {
-            console.log('yess song was added to playlist');
-            console.log(song);
+        playlist_db.add_song(id, playlist.id).then((song_id) => {
+            console.log(song_id);
+
+            //get song data from id
+            songs_db.get_song(song_id).then((song) => {
+                give_song_url(song);
+                res.json({success: true});
+            })
+            .catch((err) => {
+                res.json({success: false, message: 'error getting song data'});
+            });
+        })
+        .catch((err) => {
+            res.json({success: false, message: err.message});
+        });
+    });
+
+    router.post('/playlist/' + playlist.id + '/remove_song', function(req, res, next) {
+        const user_id = req.session.user_id;
+        //check permision
+        if (!playlist.public && user_id != playlist.user_id){
+            res.json({success: false, message: "You are not the owner of this playlist"});
+            return;
+        }
+
+        const id = req.body.id;
+
+        if (id == undefined){
+            res.json({success: false, message: "Missing song data"});
+            return;
+        }
+
+        playlist_db.remove_song(id, playlist.id).then(() => {
             res.json({success: true});
         })
         .catch((err) => {
             res.json({success: false, message: err.message});
         });
+    });
+}
+
+//get all songs and great url for each song
+songs_db.get_songs().then((songs) => {
+    songs.forEach(song => {
+        give_song_url(song);
+    });
+});
+
+function give_song_url(song){
+    //check if router.post is not already created
+    if (router.stack.find((r) => r.route.path == '/song/' + song.id)){
+        return;
+    }
+    router.post('/song/' + song.id, function(req, res, next) {
+        res.json({success: true, song: song});
     });
 }
 

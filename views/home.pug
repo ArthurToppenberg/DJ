@@ -2,14 +2,13 @@ extends layout
 
 block content
     link(rel='stylesheet', href='/stylesheets/elements.css')
-    
     div(class='container home-div')
         div(class='home-div-item-select')
             a(href="/") 
                 div(class='home-div-item-select-item-title') Playlists
             script(src="/javascripts/tools.js") 
             for playlist in playlists
-                div(class='home-div-item-select-item', id='playlist_' + playlist.id )= playlist.name
+                div(class='home-div-item-select-item playlist', id='playlist_' + playlist.id)= playlist.name
                 script.
                     document.getElementById('playlist_' + #{playlist.id}).addEventListener('click', function() {
                         fetch('/home/playlist/' + #{playlist.id},
