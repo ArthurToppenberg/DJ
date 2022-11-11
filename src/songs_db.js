@@ -83,34 +83,15 @@ function get_song(id){
     });
 };
 
-function update_song(id, data){
+function update_song_path(id, path){
     return new Promise((resolve, reject) => {
-        var sql = `UPDATE songs SET `;
-        var values = [];
-        var first = true;
-        for (var key in data){
-            if (first){
-                first = false;
-            } else {
-                sql += ', ';
-            }
-            sql += `${key} = ?`;
-            values.push(data[key]);
-        }
-        sql += ` WHERE id = ?`;
-        values.push(id);
-
-        db.run(sql, values, function(err){
+        db.run(`UPDATE songs SET file_path = ? WHERE id = ?`, [path, id], (err) => {
             if (err){
-                reject({succsess: false, error: 'Error updating song'});
+                reject({succsess: false, error: 'Error updating song path'});
                 return;
             }
 
-            get_song(id).then((song) => {
-                resolve(song);
-            }).catch((err) => {
-                reject(err);
-            });
+            resolve();
         });
     });
 }
@@ -132,5 +113,5 @@ module.exports = {
     add_song: add_song,
     get_songs: get_songs,
     get_song: get_song,
-    update_song: update_song
+    update_song_path: update_song_path
 };

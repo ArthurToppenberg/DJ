@@ -24,7 +24,8 @@ download_songs();
 function download_songs(){
     get_songs().then((songs) => {
         songs.forEach((song) => {
-            download_song(song.youtube_id).then((song_path) => {
+            console.log(song.file_path);
+            download_song(song.youtube_id, song.id).then((song_path) => {
                 console.log('Downloaded and converted --> ' + song_path);
 
             }).catch((err) => {
@@ -46,40 +47,47 @@ function get_songs(){
     });
 }
 
-function clean_up_webm(file_path_webm, cb){
+function clean_up_webm_and_mp3(file_path_webm, file_path_mp3){
     return new Promise((resolve, reject) => {
         //delete webm file
         fs.unlink(file_path_webm, (err) => {
-            resolve();
+            fs.unlink(file_path_mp3, (err) => {
+                resolve();
+            });
         });
     });
 }
 
-function download_song(youtube_id){
+function download_song(youtube_id, song_id){
     const file_path = path.join(__dirname, dir, youtube_id)
     const file_path_webm =  file_path + '.webm';
     const file_path_mp3 =  file_path + '.mp3';
     return new Promise((resolve, reject) => {
-        ytdl.getInfo(youtube_id).then((info) => {
+        
             //check if song is already downloaded
-            if (!fs.existsSync(file_path_mp3)){ // mp3 file does not exist
-
+            if (!fs.existsSync(file_path_mp3) || fs.existsSync(file_path_webm)){ // webm file exists
                 //clean up
-                clean_up_webm(file_path_webm).then(() => {
-                    //download song
-                    //console.log('Downloading --> ' + info.videoDetails.title);
-                    //webm
-                    var format = ytdl.filterFormats(info.formats, 'audioonly')[0];
+                clean_up_webm_and_mp3(file_path_webm, file_path_mp3).then(() => {
+                    ytdl.getInfo(youtube_id).then((info) => {
+                        //webm
+                        var format = ytdl.filterFormats(info.formats, 'audioonly')[0];
 
-                    //download song
-                    ytdl(youtube_id, {format: format}).pipe(fs.createWriteStream(file_path_webm)).on('finish', () => {
-
-                        convert_webm_to_mp3(file_path_webm, file_path_mp3);
+                        //download song
+                        ytdl(youtube_id, {format: format}).pipe(fs.createWriteStream(file_path_webm)).on('finish', () => {
+                            convert_webm_to_mp3(file_path_webm, file_path_mp3);
+                        });
+                    }).catch((err) => {
+                        reject(err);
                     });
                 });
             }else{
                 //console.log('Already downloaded --> ' + file_path_mp3);
-                resolve('(previous) ' + file_path_mp3);
+                update_song_path_in_db(song_id, file_path_mp3).then(() => {
+                    resolve(file_path_mp3);
+                }).catch((err) => {
+                    console.log(err);
+                    reject(err);
+                });
             }
             
             function convert_webm_to_mp3(file_path_webm, file_path_mp3){
@@ -98,11 +106,22 @@ function download_song(youtube_id){
                             return;
                         }
                     });
-                    resolve(file_path_mp3);
+                    update_song_path_in_db(song_id, file_path_mp3).then(() => {
+                        resolve(file_path_mp3);
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 }); 
             };
-        }).catch((err) => {
-            reject(err);
-        });
+
+            function update_song_path_in_db(song_id, file_path_mp3){
+                return new Promise((resolve, reject) => {
+                    songs_db.update_song_path(song_id, file_path_mp3).then(() => {
+                        resolve();
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            }
     });
 }
