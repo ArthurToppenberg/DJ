@@ -33,10 +33,12 @@ function search(query){
 }
 
 function get_data(id){
+    console.log(id);
     return new Promise((resolve, reject) => {
         const url = 'https://www.youtube.com/watch?v=' + id;
         youtube(url, opts_1, function(err, results) {
             if(err) reject({success: false, message: 'error searching for song'});
+            if(results == undefined || results.length == 0) reject({success: false, message: 'no results'});
             const output = format_results(results);
             resolve({success: true, results: output});
         });

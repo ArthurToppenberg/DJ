@@ -240,6 +240,8 @@ function add_song(youtube_song_id, playlist_id){
             )}).catch((err) => {
                 reject(err);
             });
+        }).catch((err) => {
+            reject(err);
         });
     });
 }
