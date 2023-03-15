@@ -156,3 +156,46 @@ function add_song_dropbox(post_url){
         e.preventDefault();
     });
 }
+
+function add_download_playlist(post_url){
+    var tool = document.createElement("div");
+    tool.className = "home-div-item-content-options-input-div-delete";
+    tool.innerHTML = 'Download ZIP';
+    document.getElementById("tools_bar").appendChild(tool);
+
+    //add event listener
+    tool.addEventListener("click", function(){
+        //set color to orange
+        tool.style.backgroundColor = 'orange';
+        tool.innerHTML = 'Compressing...';
+
+        //post request
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", post_url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send();
+        xhr.onload = function () {
+            var response = JSON.parse(xhr.responseText);
+            if(response.success){
+                tool.style.backgroundColor = 'green';
+                tool.innerHTML = 'Downloading ...';
+                console.log(response);
+
+                const zip_file_path = response.zip_file_path;
+                const zip_file_name = response.zip_file_name;
+
+                //download zip file
+                var link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = zip_file_path
+                link.download = zip_file_name;
+                link.click();
+                link.remove();        
+            }else{
+                tool.style.backgroundColor = 'red';
+                tool.innerHTML = 'Error';
+                alert(response.message);
+            }
+        }
+    });
+}

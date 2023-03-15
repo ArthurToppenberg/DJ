@@ -37,6 +37,12 @@ app.use('/', require('./routes/login'));
 app.use('/register', require('./routes/register'));
 app.use('/home', auth.isAuthed, require('./routes/home'));
 
+/*
+  start downloading songs
+*/
+
+require('./src/downloader')
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -52,30 +58,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-require('./src/downloader')
-
-/*
-            $$$$$$$$\ $$\   $$\ $$$$$$$$\ $$\   $$\             
-            \__$$  __|$$ |  $$ |\__$$  __|$$ |  $$ |            
-               $$ |   $$ |  $$ |   $$ |   $$ |  $$ |            
-               $$ |   $$ |  $$ |   $$ |   $$ |  $$ |            
-               $$ |   $$ |  $$ |   $$ |   $$ |  $$ |            
-               $$ |   $$ |  $$ |   $$ |   $$ |  $$ |            
-               $$ |   \$$$$$$  |   $$ |   \$$$$$$  |            
-               \__|    \______/    \__|    \______/             
-                                                                
-                                                                
-                                                                
-                      $$$$$$$\     $$$$$\                       
-                      $$  __$$\    \__$$ |                      
-                      $$ |  $$ |      $$ |                      
-$$$$$$\ $$$$$$\       $$ |  $$ |      $$ |      $$$$$$\ $$$$$$\ 
-\______|\______|      $$ |  $$ |$$\   $$ |      \______|\______|
-                      $$ |  $$ |$$ |  $$ |                      
-                      $$$$$$$  |\$$$$$$  |                      
-                      \_______/  \______/                       
-*/     
 
 //print text above
 console.log(`

@@ -3,6 +3,8 @@ var router = express.Router();
 var playlist_db = require('../src/playlist_db');
 var song_search = require('../src/song_search');
 var songs_db = require('../src/songs_db');
+var downloader = require('../src/downloader');
+var playlist_output = require('../src/playlist_output');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -153,8 +155,6 @@ function give_playlist_url(playlist){
         }
 
         playlist_db.add_song(id, playlist.id).then((song_id) => {
-            console.log(song_id);
-
             //get song data from id
             songs_db.get_song(song_id).then((song) => {
                 give_song_url(song);
@@ -191,6 +191,49 @@ function give_playlist_url(playlist){
             res.json({success: false, message: err.message});
         });
     });
+
+    //zip playlist and download on client
+    router.post('/playlist/' + playlist.id + '/download_zip', function(req, res, next) {
+        const user_id = req.session.user_id;
+        //check permision
+        if (!playlist.public && user_id != playlist.user_id){
+            res.json({success: false, message: "You are not the owner of this playlist"});
+            return;
+        }
+
+        var avaliable_songs = [];
+
+        playlist_db.get_playlist(playlist.id).then((playlist) => {
+            var songs_ids = playlist.songs_ids;
+            songs_ids = JSON.parse(songs_ids);
+            
+            songs_ids.forEach((song_id, index) => {
+                songs_db.get_song(song_id).then((song) => {
+                    if(song.file_path != null){
+                        //song title max 50 chars
+                        var title = song.youtube_title;
+                        
+                        if (title.length > 50){
+                            title = title.substring(0, 50);
+                        }
+
+                        avaliable_songs.push([song.file_path, title]);
+                    }
+
+                    if(index == songs_ids.length - 1){
+                        //zip playlist
+                        playlist_output.zip(avaliable_songs).then((zip_path) => {                            
+                            res.json({success: true, zip_file_path: 'playlists/' + zip_path, zip_file_name: playlist.name});
+                        }).catch((err) => {
+                            console.log(err);
+                        });
+                    }
+                }).catch();
+            });
+        }).catch((err) => {
+            res.json({success: false, message: 'error getting playlist data'});
+        });
+    });
 }
 
 //get all songs and great url for each song
@@ -198,15 +241,34 @@ songs_db.get_songs().then((songs) => {
     songs.forEach(song => {
         give_song_url(song);
     });
+}).catch((err) => {
+    console.log(err);
+    console.log('error getting songs from songs_db');
 });
 
 function give_song_url(song){
+
+    //download song
+    downloader.download_song(song.youtube_id, song.id).catch((err) => {
+        console.log('error downloading song: ' + song.youtube_id);
+    });
+
     //check if router.post is not already created
     if (router.stack.find((r) => r.route.path == '/song/' + song.id)){
         return;
     }
     router.post('/song/' + song.id, function(req, res, next) {
-        res.json({success: true, song: song});
+       //get song data with song.id
+        songs_db.get_song(song.id).then((song) => {
+            if(song.file_path == null){
+                song.file_path = false;
+            }else{
+                song.file_path = true;
+            }
+            res.json({success: true, song: song});
+        }).catch((err) => {
+            res.json({success: false, message: 'error getting song data'});
+        });
     });
 }
 

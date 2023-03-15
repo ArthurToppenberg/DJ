@@ -11,11 +11,11 @@ const dir = '/songs';
 
 //if songs dir does not exist create it
 if (!fs.existsSync(path.join(__dirname, dir))){
-    console.log('Creating songs dir');
+    //console.log('Creating songs dir');
     fs.mkdirSync(path.join(__dirname, dir));
 }
 
-download_songs();
+//download_songs();
 
 /*
     -- FUNCTIONS -- 
@@ -26,7 +26,7 @@ function download_songs(){
         songs.forEach((song) => {
             console.log(song.file_path);
             download_song(song.youtube_id, song.id).then((song_path) => {
-                console.log('Downloaded and converted --> ' + song_path);
+                //console.log('Downloaded and converted --> ' + song_path);
 
             }).catch((err) => {
                 console.log('error downloading song --> ' + song.youtube_title);
@@ -77,7 +77,7 @@ function download_song(youtube_id, song_id){
                             convert_webm_to_mp3(file_path_webm, file_path_mp3);
                         });
                     }).catch((err) => {
-                        reject(err);
+                        reject('Video is restricted');
                     });
                 });
             }else{
@@ -124,4 +124,9 @@ function download_song(youtube_id, song_id){
                 });
             }
     });
+}
+
+module.exports = {
+    download_songs: download_songs,
+    download_song: download_song
 }

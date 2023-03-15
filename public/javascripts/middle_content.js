@@ -106,10 +106,13 @@ view_playlist.addEventListener("click", function(){
                                 const loading_gif = document.createElement("img");
                                 loading_gif.src = "/images/loading.gif";
                                 loading_gif.className = "song-div-loading-gif";
+                                check_song_processed_status(id);
                                 playlist_div_id.appendChild(loading_gif);
 
                                     //on hover show message
-                                    loading_gif.addEventListener("mouseover", function(event){
+                                    loading_gif.addEventListener("mouseover", hover_over_gif);
+
+                                    function hover_over_gif(){ //this function to show message on hover
                                         const message = document.createElement("div");
                                         message.className = "message";
                                         message.innerHTML = "Your song is being processed";
@@ -121,9 +124,34 @@ view_playlist.addEventListener("click", function(){
                                         //remove message after x milliseconds
                                         setTimeout(function(){
                                             message.remove();
+                                        }, 900);
+                                    };
+
+                                function check_song_processed_status(id){
+                                    //check if song is processed
+                                    const xhr = new XMLHttpRequest();
+                                    xhr.open("POST", "/home/song/" + id, true);
+                                    xhr.setRequestHeader("Content-Type", "application/json");
+                                    xhr.send();
+                                    xhr.onload = function(){
+                                        const response = JSON.parse(xhr.responseText);
+                                        if(response.success){
+                                            const song = response.song;
+                                            if(song.file_path == true){
+                                                //song is processed, change loading gif to green_check.png
+                                                loading_gif.src = "/images/green_check.png";
+                                                //remove event listener
+                                                loading_gif.removeEventListener('mouseover', hover_over_gif);
+                                            }
+                                            else{
+                                                //song is not processed, check again in 1 second
+                                                setTimeout(function(){
+                                                    check_song_processed_status(id);
+                                                }, 1000);
+                                            }
                                         }
-                                        , 900);
-                                    });
+                                    }
+                                }
 
                                 //add delete button
                                 const delete_button = document.createElement("button");
@@ -147,9 +175,6 @@ view_playlist.addEventListener("click", function(){
                                             }
                                         }
                                     });
-                            }
-                            else {
-                                console.log(response.message);
                             }
                         }
                     }
@@ -220,8 +245,6 @@ function query_search_songs(search_bar){
             response.results.forEach((result) => {
                 add_search_query_result(result);
             });
-        }else{
-            console.log(response.message);
         }
     }
 

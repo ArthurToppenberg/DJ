@@ -258,6 +258,7 @@
     border-style: groove;
     border-width: 1px;
     transition: border-radius 0.5s;
+    margin-top: 10px;
 }
 
 .home-div-item-content-options-input-div-delete:hover{

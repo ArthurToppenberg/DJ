@@ -12,11 +12,13 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
+const fs = require('fs');
+
 var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTPS server.
  */
 
 var server = http.createServer(app);
