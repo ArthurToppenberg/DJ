@@ -14,7 +14,7 @@ const opts_1 = {
 };
 
 function search(query){
-    const formatted_query = query + '';
+    const formatted_query = query + ' RADIO EDIT';
     return new Promise((resolve, reject) => {
         youtube(formatted_query, opts_10, function(err, results) {
             if(err) reject({success: false, message: 'error searching for song'});
